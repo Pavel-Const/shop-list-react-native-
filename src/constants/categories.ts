@@ -14,4 +14,29 @@ export const CATEGORIES = [
     name: "Мясо",
     color: "#FFD6D6",
   },
+  {
+    id: "4",
+    name: "Фрукты",
+    color: "#FFE29A",
+  },
+  {
+    id: "5",
+    name: "Напитки",
+    color: "#D6CCFF",
+  },
+  {
+    id: "6",
+    name: "Сладости",
+    color: "#FFC9E3",
+  },
+  {
+    id: "7",
+    name: "Заморозка",
+    color: "#CDEFFF",
+  },
+  {
+    id: "8",
+    name: "Бакалея",
+    color: "#F5DEB3",
+  },
 ];

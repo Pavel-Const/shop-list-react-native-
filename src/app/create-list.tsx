@@ -1,8 +1,9 @@
-import {View, TextInput, Button} from "react-native";
+import {View, TextInput} from "react-native";
 import {useEffect, useState} from "react";
 import {router} from "expo-router";
 import {useStore} from "@/store/useStore";
 import {useHeaderStore} from "@/store/useHeaderStore";
+import {AppInput} from "@/components/ui/AppInput";
 
 export default function CreateList() {
   const [name, setName] = useState("");
@@ -35,19 +36,13 @@ export default function CreateList() {
         flex: 1,
         padding: 20,
         backgroundColor: "#fff",
-        justifyContent: "center",
       }}
     >
-      <TextInput
-        placeholder="Название списка"
+      <AppInput
+        label="Введите название списка"
+        placeholder="Новый список"
         value={name}
         onChangeText={setName}
-        style={{
-          borderWidth: 1,
-          padding: 12,
-          borderRadius: 8,
-          marginBottom: 20,
-        }}
       />
     </View>
   );

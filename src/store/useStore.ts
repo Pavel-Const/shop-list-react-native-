@@ -31,8 +31,8 @@ type Store = {
   setMode: (mode: "edit" | "shopping") => void;
   addItem: (listId: string, title: string, categoryId?: string) => void;
   toggleItem: (listId: string, itemId: string) => void;
-  removeItem: (listId: string, itemId: string) => void;
   updateItem: (listId: string, itemId: string, title: string, categoryId?: string) => void;
+  removeItem: (listId: string, itemId: string) => void;
 };
 
 export const useStore = create<Store>()(
@@ -142,16 +142,14 @@ export const useStore = create<Store>()(
     }),
     {
       name: "shopping-storage",
-      storage: createJSONStorage(() => AsyncStorage),
-
-      merge: (persistedState: any, currentState) => ({
-        ...currentState,
-        ...persistedState,
-
-        categories:
-          persistedState?.categories?.length
-            ? persistedState.categories
-            : currentState.categories,
+      
+      storage: createJSONStorage(
+        () => AsyncStorage
+      ),
+      
+      partialize: (state) => ({
+        lists: state.lists,
+        mode: state.mode,
       }),
     }
   )

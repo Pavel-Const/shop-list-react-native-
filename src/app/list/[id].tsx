@@ -2,167 +2,123 @@ import {View, Text, Button, FlatList, Pressable} from "react-native";
 import {router, useFocusEffect, useLocalSearchParams} from "expo-router";
 import {useStore} from "@/store/useStore";
 import {useHeaderStore} from "@/store/useHeaderStore";
-import {useCallback} from "react";
+import {useCallback, useState} from "react";
+import {AppButton} from "@/components/ui/AppButton";
+import {ListItemCard} from "@/components/ListItemCard";
+import {CategoriesBar} from "@/components/CategoriesBar";
 
 export default function ListScreen() {
+  const [selectedCategoryId, setSelectedCategoryId] =
+    useState<string>();
+  
   const {id} = useLocalSearchParams();
-
+  
   const {
     lists,
     categories,
     removeItem,
+    toggleItem,
   } = useStore();
-
+  
   const {
     setAction,
     setTitle,
     clearAction,
   } = useHeaderStore();
-
+  
   const list = lists.find(
     (l) => l.id === id
   );
-
+  
   if (!list) {
     return <Text>List not found</Text>;
   }
-
+  
+  const handleAdd = () => {
+    return router.push({
+      pathname: "/add-item",
+      params: {
+        listId: list.id,
+      },
+    } as any)
+  }
+  
+  const sortedItems = [...list.items].sort(
+    (a, b) => Number(a.done) - Number(b.done)
+  );
+  
+  const filteredItems =
+    selectedCategoryId
+      ? sortedItems.filter(
+        (item) =>
+          item.categoryId ===
+          selectedCategoryId
+      )
+      : sortedItems;
+  
   useFocusEffect(
     useCallback(() => {
       setTitle(list.name);
-
+      
       setAction({
         isVisible: true,
         title: "Готово",
         onPress: () => router.back(),
       });
-
+      
       return () => clearAction();
     }, [list.name])
   );
-
+  
   return (
     <View
       style={{
         flex: 1,
-        padding: 20,
         backgroundColor: "#fff",
+        paddingTop: 20
       }}
     >
-      <Button
-        title="Add item"
-        onPress={() =>
-          router.push({
-            pathname: "/add-item",
-            params: {
-              listId: list.id,
-            },
-          } as any)
-        }
-      />
-
-      <FlatList
-        style={{marginTop: 20}}
-        data={list.items}
-        keyExtractor={(i) => i.id}
-        renderItem={({item}) => {
-          const category =
-            categories.find(
-              (c) =>
-                c.id === item.categoryId
-            );
-
-          return (
-            <Pressable
-              onPress={() =>
-                router.push({
-                  pathname:
-                    "/edit-item",
-                  params: {
-                    listId:
-                    list.id,
-                    itemId:
-                    item.id,
-                  },
-                } as any)
-              }
-              style={{
-                flexDirection: "row",
-                justifyContent:
-                  "space-between",
-                alignItems: "center",
-                padding: 12,
-
-                borderWidth: 1,
-                borderColor: category?.color || "#E5E5EA",
-
-                borderRadius: 12,
-
-                marginBottom: 10,
-              }}
-            >
-              {/* LEFT */}
-              <View
-                style={{
-                  flex: 1,
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 16,
-                    color: "#1F2024",
-                    textDecorationLine:
-                      item.done
-                        ? "line-through"
-                        : "none",
-                  }}
-                >
-                  {item.title}
-                </Text>
-
-                {category && (
-                  <View
-                    style={{
-                      alignSelf:
-                        "flex-start",
-
-                      marginTop: 6,
-
-                      paddingHorizontal: 8,
-                      paddingVertical: 4,
-
-                      borderRadius: 999,
-
-                      backgroundColor:
-                        category.color ||
-                        "#F4F5F6",
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontSize: 12,
-                        color: "#1F2024",
-                      }}
-                    >
-                      {category.name}
-                    </Text>
-                  </View>
-                )}
-              </View>
-
-              {/* RIGHT */}
-              <Button
-                title="X"
-                onPress={() =>
-                  removeItem(
-                    list.id,
-                    item.id
-                  )
-                }
-              />
-            </Pressable>
-          );
+      <AppButton
+        title="Добавить товар"
+        style={{
+          alignSelf: "center",
         }}
+        onPress={handleAdd}
+      />
+      <View
+        style={{
+          flex: 1,
+          padding: 20,
+        }}
+      >
+        <FlatList
+          style={{marginTop: 20, width: "100%"}}
+          data={filteredItems}
+          keyExtractor={(i) => i.id}
+          renderItem={({item}) => {
+            const category =
+              categories.find(
+                (c) =>
+                  c.id === item.categoryId
+              );
+            return (
+              <ListItemCard
+                item={item}
+                listId={list.id}
+                category={category}
+                onRemove={removeItem}
+                onToggle={toggleItem}
+              />
+            );
+          }}
+        />
+      </View>
+      <CategoriesBar
+        categories={categories}
+        selectedCategoryId={
+          selectedCategoryId
+        }
+        onSelect={setSelectedCategoryId}
       />
     </View>
   );

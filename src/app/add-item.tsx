@@ -5,10 +5,12 @@ import {useStore} from "@/store/useStore";
 import {POPULAR_ITEMS} from "@/constants/popularItems";
 import {useHeaderStore} from "@/store/useHeaderStore";
 import {CategoryPicker} from "@/components/CategoryPicker";
+import {AppInput} from "@/components/ui/AppInput";
 
 export default function AddItem() {
   const [name, setName] = useState("");
   const [categoryId, setCategoryId] = useState<string>();
+  
   const {addItem} = useStore();
   const {setAction, setTitle, clearAction} = useHeaderStore();
 
@@ -25,16 +27,8 @@ export default function AddItem() {
     if (!name.trim() || !listId) return;
     addItem(listId, name.trim(), categoryId);
     router.back();
-  }, [name, listId]);
+  }, [name, listId, categoryId]);
 
-  const handleSuggestionPress = useCallback(
-    (value: string) => {
-      if (!listId) return;
-      addItem(listId, value);
-      router.back();
-    },
-    [listId]
-  );
   useFocusEffect(
     useCallback(() => {
       setTitle("Новый товар");
@@ -51,33 +45,16 @@ export default function AddItem() {
 
   return (
     <View style={{flex: 1, padding: 20, backgroundColor: "#fff"}}>
-      <TextInput
-        placeholder="Название товара"
+      
+      <AppInput
+        label="Товар"
+        placeholder="Введите товар"
         value={name}
         onChangeText={setName}
-        autoFocus
-        style={{
-          borderWidth: 1,
-          padding: 12,
-          borderRadius: 8,
-          marginBottom: 10,
+        suggestions={suggestions}
+        onSuggestionPress={(value) => {
+          setName(value);
         }}
-      />
-
-      <FlatList
-        data={suggestions}
-        keyExtractor={(item) => item}
-        renderItem={({item}) => (
-          <TouchableOpacity
-            onPress={() => handleSuggestionPress(item)}
-            style={{
-              padding: 10,
-              borderBottomWidth: 1,
-            }}
-          >
-            <Text>{item}</Text>
-          </TouchableOpacity>
-        )}
       />
       <CategoryPicker
         value={categoryId}
